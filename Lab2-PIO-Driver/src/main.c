@@ -117,7 +117,7 @@ const uint32_t ul_attribute)
 	
 	_pio_pull_up(p_pio, ul_mask, ul_attribute & PIO_PULLUP);
 
-	if (ul_attribute & (PIO_DEGLITCH | PIO_DEBOUNCE)) {
+	if (ul_attribute & (PIO_DEGLITCH || PIO_DEBOUNCE)) {
 		p_pio->PIO_IFSCER = ul_mask;
 		} else {
 		p_pio->PIO_IFSCDR = ul_mask;
@@ -171,27 +171,31 @@ void init(void){
 	
 	// configura pino ligado ao botão como entrada com um pull-up.
 	_pio_set_input(BUT_PIO, BUT_PIO_IDX_MASK, _PIO_PULLUP | _PIO_DEBOUNCE);
+	pio_set_debounce_filter(BUT_PIO, BUT_PIO_IDX_MASK, 60);
 	
 	//LED 1
 	pmc_enable_periph_clk(LED1_PIO_ID);
 	_pio_set_output(LED1_PIO, LED1_PIO_IDX_MASK, 1, 0, 0);
 	//BUTTON 1
 	pmc_enable_periph_clk(BUT1_PIO_ID);
-	_pio_set_input(BUT_PIO, BUT_PIO_IDX_MASK, _PIO_PULLUP | _PIO_DEBOUNCE);
+	_pio_set_input(BUT1_PIO, BUT1_PIO_IDX_MASK, _PIO_PULLUP | _PIO_DEBOUNCE);
+	pio_set_debounce_filter(BUT1_PIO, BUT1_PIO_IDX_MASK, 60);
 	
 	//LED 2
 	pmc_enable_periph_clk(LED2_PIO_ID);
 	_pio_set_output(LED2_PIO, LED2_PIO_IDX_MASK, 1, 0, 0);
 	//BUTTON 2
 	pmc_enable_periph_clk(BUT2_PIO_ID);
-	_pio_set_input(BUT_PIO, BUT_PIO_IDX_MASK, _PIO_PULLUP | _PIO_DEBOUNCE);
+	_pio_set_input(BUT2_PIO, BUT2_PIO_IDX_MASK, _PIO_PULLUP | _PIO_DEBOUNCE);
+	pio_set_debounce_filter(BUT2_PIO, BUT2_PIO_IDX_MASK, 60);
 	
 	//LED 3
 	pmc_enable_periph_clk(LED3_PIO_ID);
 	_pio_set_output(LED3_PIO, LED3_PIO_IDX_MASK, 1, 0, 0);
 	//BUTTON 3
 	pmc_enable_periph_clk(BUT3_PIO_ID);
-	_pio_set_input(BUT_PIO, BUT_PIO_IDX_MASK, _PIO_PULLUP | _PIO_DEBOUNCE);
+	_pio_set_input(BUT3_PIO, BUT3_PIO_IDX_MASK, _PIO_PULLUP | _PIO_DEBOUNCE);
+	pio_set_debounce_filter(BUT3_PIO, BUT3_PIO_IDX_MASK, 60);
 	
 	
 }
