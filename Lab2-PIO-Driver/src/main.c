@@ -114,11 +114,26 @@ const uint32_t ul_pull_up_enable){
 void _pio_set_input(Pio *p_pio, const uint32_t ul_mask,
 const uint32_t ul_attribute)
 {
-	_pio_pull_up(p_pio, const ul_mask, _PIO_PULLUP);
-	if (ul_attribute == 1) {
+	
+	_pio_pull_up(p_pio, ul_mask, ul_attribute & PIO_PULLUP);
+
+	if (ul_attribute & (PIO_DEGLITCH | PIO_DEBOUNCE)) {
 		p_pio->PIO_IFSCER = ul_mask;
 		} else {
 		p_pio->PIO_IFSCDR = ul_mask;
+	}
+}
+
+void _pio_set_output(Pio *p_pio, const uint32_t ul_mask,
+const uint32_t ul_default_level,
+const uint32_t ul_multidrive_enable,
+const uint32_t ul_pull_up_enable)
+{
+	_pio_pull_up(p_pio, ul_mask, ul_pull_up_enable);
+	if (ul_default_level) {
+		_pio_set(p_pio, ul_mask);
+	} else {
+		_pio_clear(p_pio, ul_mask);
 	}
 }
 
