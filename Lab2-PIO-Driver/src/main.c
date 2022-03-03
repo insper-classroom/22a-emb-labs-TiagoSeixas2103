@@ -130,11 +130,21 @@ const uint32_t ul_multidrive_enable,
 const uint32_t ul_pull_up_enable)
 {
 	_pio_pull_up(p_pio, ul_mask, ul_pull_up_enable);
+	
+	if (ul_multidrive_enable){
+		p_pio->PIO_MDER = ul_mask;
+	} else {
+		p_pio->PIO_MDDR = ul_mask;
+	}
+	
 	if (ul_default_level) {
 		_pio_set(p_pio, ul_mask);
 	} else {
 		_pio_clear(p_pio, ul_mask);
 	}
+	
+	p_pio->PIO_OER = ul_mask;
+	p_pio->PIO_PER = ul_mask;
 }
 
 // Função de inicialização do uC
@@ -150,7 +160,7 @@ void init(void){
 	pmc_enable_periph_clk(LED_PIO_ID);
 	
 	//Inicializa PC8 como saída
-	pio_set_output(LED_PIO, LED_PIO_IDX_MASK, 0, 0, 0);
+	_pio_set_output(LED_PIO, LED_PIO_IDX_MASK, 0, 0, 0);
 	
 	// Inicializa PIO do botao
 	pmc_enable_periph_clk(BUT_PIO_ID);
@@ -161,21 +171,21 @@ void init(void){
 	
 	//LED 1
 	pmc_enable_periph_clk(LED1_PIO_ID);
-	pio_set_output(LED1_PIO, LED1_PIO_IDX_MASK, 1, 0, 0);
+	_pio_set_output(LED1_PIO, LED1_PIO_IDX_MASK, 1, 0, 0);
 	//BUTTON 1
 	pmc_enable_periph_clk(BUT1_PIO_ID);
 	_pio_set_input(BUT_PIO, BUT_PIO_IDX_MASK, _PIO_PULLUP | _PIO_DEBOUNCE);
 	
 	//LED 2
 	pmc_enable_periph_clk(LED2_PIO_ID);
-	pio_set_output(LED2_PIO, LED2_PIO_IDX_MASK, 1, 0, 0);
+	_pio_set_output(LED2_PIO, LED2_PIO_IDX_MASK, 1, 0, 0);
 	//BUTTON 2
 	pmc_enable_periph_clk(BUT2_PIO_ID);
 	_pio_set_input(BUT_PIO, BUT_PIO_IDX_MASK, _PIO_PULLUP | _PIO_DEBOUNCE);
 	
 	//LED 3
 	pmc_enable_periph_clk(LED3_PIO_ID);
-	pio_set_output(LED3_PIO, LED3_PIO_IDX_MASK, 1, 0, 0);
+	_pio_set_output(LED3_PIO, LED3_PIO_IDX_MASK, 1, 0, 0);
 	//BUTTON 3
 	pmc_enable_periph_clk(BUT3_PIO_ID);
 	_pio_set_input(BUT_PIO, BUT_PIO_IDX_MASK, _PIO_PULLUP | _PIO_DEBOUNCE);
