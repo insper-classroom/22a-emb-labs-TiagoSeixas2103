@@ -51,6 +51,7 @@
 /************************************************************************/
 void io_init(void);
 void pisca_led(int n, int t);
+volatile char but_flag;
 
 /************************************************************************/
 /* handler / callbacks                                                  */
@@ -65,7 +66,11 @@ void pisca_led(int n, int t);
  */
 void but_callback(void)
 {
-    pisca_led(5, 200);
+	if (pio_get(BUT_PIO, PIO_INPUT, BUT_IDX_MASK)) {
+		but_flag = 1;
+		} else {
+		but_flag = 1;
+	}
 }
 
 /************************************************************************/
@@ -105,7 +110,7 @@ void io_init(void)
   pio_handler_set(BUT_PIO,
                   BUT_PIO_ID,
                   BUT_IDX_MASK,
-                  PIO_IT_FALL_EDGE,
+                  PIO_IT_EDGE,
                   but_callback);
 
   // Ativa interrupção e limpa primeira IRQ gerada na ativacao
@@ -138,5 +143,12 @@ void main(void)
 	// aplicacoes embarcadas no devem sair do while(1).
 	while(1)
   {
+	  if (but_flag) {
+
+		  pisca_led(5, 200);
+		  but_flag = 0;
+
+	  }
+	  pmc_sleep(SAM_PM_SMODE_SLEEP_WFI);
 	}
 }
