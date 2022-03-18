@@ -260,10 +260,10 @@ int main (void)
 	LED_init(1);
 	LED1_init(1);
 	
-	TC_init(TC0, ID_TC1, 1, 5);	
+	TC_init(TC0, ID_TC1, 1, 10);	
 	tc_start(TC0, 1);
 	
-	TC_init(TC1, ID_TC4, 1, 4);
+	TC_init(TC1, ID_TC4, 1, 8);
 	tc_start(TC1, 1);
 	
 	/** Configura RTC */
@@ -276,10 +276,12 @@ int main (void)
 	gfx_mono_ssd1306_init();
 
 	while(1) {
-		gfx_mono_draw_rect(0, 0, 130, 100, GFX_PIXEL_CLR);
+		uint32_t current_hour2, current_min2, current_sec2;
+		rtc_get_time(RTC, &current_hour2, &current_min2, &current_sec2);
+		gfx_mono_draw_rect(0, 0, 300, 300, GFX_PIXEL_CLR);
 		char str[128];
-		//sprintf(str, "hora%d", frequencia);
-		//gfx_mono_draw_string(str, 0, 0, &sysfont);
+		sprintf(str, "%d:%d:%d", current_hour2, current_min2, current_sec2);
+		gfx_mono_draw_string(str, 0, 0, &sysfont);
 		
 		
 		if (but_flag==1)		{
