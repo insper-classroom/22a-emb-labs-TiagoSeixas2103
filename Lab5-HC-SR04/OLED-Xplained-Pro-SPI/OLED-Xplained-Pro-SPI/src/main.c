@@ -159,7 +159,7 @@ int main (void)
 	while(1) {
 			ativa_ultrassonico();
 			
-			float distancia = (tempo2 * 340 * 100)/2;
+			float distancia = (tempo2 * 340 * 100.0)/2.0;
 			char str[128];
 			sprintf(str, "%.6f", distancia);
 			gfx_mono_draw_string(str, 0, 0, &sysfont);		
