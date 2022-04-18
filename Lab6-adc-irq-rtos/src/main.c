@@ -139,17 +139,17 @@ static void task_proc(void *pvParameters) {
 	int vetor[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 	// variável para recever dados da fila
-	adcData adc;
+	adcData proc;
 
 	while (1) {
-		if (xQueueReceive(xQueueADC, &(adc), 1000)) {
-			printf("ADC: %d \n", adc);
+		if (xQueueReceive(xQueuePROC, &(proc), 1000)) {
+			printf("PROC: %d \n", proc);
 			
 			if (val1 == 9) {
 				val1 = 0;
 			}
 			
-			vetor[val1] = adc.value;
+			vetor[val1] = proc.value;
 			val1++;
 			int val2 = 0;
 			for (int contador = 0; contador < 10; contador++) {
@@ -157,7 +157,7 @@ static void task_proc(void *pvParameters) {
 			}
 			
 			int val3 = val2 * 0.1;
-			xQueueSend(xQueueADC, (void *)&val3, 10);
+			xQueueSend(xQueuePROC, (void *)&val3, 10);
 			} else {
 			printf("Nao chegou um novo dado em 1 segundo");
 		}
