@@ -19,6 +19,9 @@
 #define TASK_ADC_STACK_SIZE (1024*10 / sizeof(portSTACK_TYPE))
 #define TASK_ADC_STACK_PRIORITY (tskIDLE_PRIORITY)
 
+#define TASK_PROC_STACK_SIZE (1024*10 / sizeof(portSTACK_TYPE))
+#define TASK_PROC_STACK_PRIORITY (tskIDLE_PRIORITY)
+
 extern void vApplicationStackOverflowHook(xTaskHandle *pxTask,
                                           signed char *pcTaskName);
 extern void vApplicationIdleHook(void);
@@ -271,8 +274,8 @@ int main(void) {
     printf("Failed to create test ADC task\r\n");
   }
   
-  if (xTaskCreate(task_proc, "PROC", TASK_ADC_STACK_SIZE, NULL,
-  TASK_ADC_STACK_PRIORITY, NULL) != pdPASS) {
+  if (xTaskCreate(task_proc, "PROC", TASK_PROC_STACK_SIZE, NULL,
+  TASK_PROC_STACK_PRIORITY, NULL) != pdPASS) {
 	  printf("Failed to create test PROC task\r\n");
   }
 
