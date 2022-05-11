@@ -161,7 +161,7 @@ void lv_termostato(void) {
 	lv_obj_center(labelBtnMenu);
 	
 	lv_obj_t * btnClk = lv_btn_create(lv_scr_act());
-	lv_obj_add_event_cb(btnClk, menu_handler, LV_EVENT_ALL, NULL);
+	lv_obj_add_event_cb(btnClk, clk_handler, LV_EVENT_ALL, NULL);
 	lv_obj_align_to(btnClk, btnMenu, LV_ALIGN_OUT_RIGHT_TOP, 0, 0);
 	lv_obj_add_style(btnClk, &style, 0);
 
@@ -170,7 +170,7 @@ void lv_termostato(void) {
 	lv_obj_center(labelBtnClk);
 	
 	lv_obj_t * btnDown = lv_btn_create(lv_scr_act());
-	lv_obj_add_event_cb(btnDown, menu_handler, LV_EVENT_ALL, NULL);
+	lv_obj_add_event_cb(btnDown, down_handler, LV_EVENT_ALL, NULL);
 	lv_obj_align(btnDown, LV_ALIGN_BOTTOM_RIGHT, 0, 0);
 	lv_obj_add_style(btnDown, &style, 0);
 
@@ -179,7 +179,7 @@ void lv_termostato(void) {
 	lv_obj_center(labelBtnDown);
 	
 	lv_obj_t * btnUp = lv_btn_create(lv_scr_act());
-	lv_obj_add_event_cb(btnUp, menu_handler, LV_EVENT_ALL, NULL);
+	lv_obj_add_event_cb(btnUp, up_handler, LV_EVENT_ALL, NULL);
 	lv_obj_align_to(btnUp, btnDown, LV_ALIGN_OUT_LEFT_TOP, -30, 0);
 	lv_obj_add_style(btnUp, &style, 0);
 
