@@ -49,7 +49,15 @@ typedef struct  {
 	uint32_t second;
 } calendar;
 
-volatile char flag_rtc_alarm = 0;
+calendar calendario = {2022, 5, 16, 20, 16, 8, 10};
+
+uint32_t current_hour, current_min, current_sec;
+uint32_t current_year, current_month, current_day, current_week;
+
+volatile char flag_rtc = 0;
+
+QueueHandle_t xQueueRtc;
+SemaphoreHandle_t xSemaphoreRtc;
 
 /************************************************************************/
 /* RTOS                                                                 */
@@ -167,12 +175,16 @@ void RTC_Handler(void) {
 	/* seccond tick */
 	if ((ul_status & RTC_SR_SEC) == RTC_SR_SEC) {
 		// o c?digo para irq de segundo vem aqui
+		flag_rtc = 1;
+		BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+		xSemaphoreGiveFromISR(xSemaphoreRtc, &xHigherPriorityTaskWoken);
+		xQueueSendFromISR(xQueueRtc, (void *)&flag_rtc, &xHigherPriorityTaskWoken);
+		
 	}
 	
 	/* Time or date alarm */
 	if ((ul_status & RTC_SR_ALARM) == RTC_SR_ALARM) {
 		// o c?digo para irq de alame vem aqui
-		flag_rtc_alarm = 1;
 	}
 
 	rtc_clear_status(RTC, RTC_SCCR_SECCLR);
@@ -205,17 +217,20 @@ void RTC_init(Rtc *rtc, uint32_t id_rtc, calendar t, uint32_t irq_type) {
 }
 
 void task_rtc() {
-	calendar rtc_initial = {2022, 5, 11, 19, 0, 0 , 0};
+	RTC_init(RTC, ID_RTC, calendario, RTC_IER_SECEN);
+	int32_t delayticks = 0;
 	
-	uint32_t current_hour, current_min, current_sec;
-	uint32_t current_year, current_month, current_day, current_week;
-	rtc_get_time(RTC, &current_hour, &current_min, &current_sec);
-	rtc_get_date(RTC, &current_year, &current_month, &current_day, &current_week);
-	
-	if (current_hour < 4) {
-		lv_label_set_text_fmt(labelClock, "%02d:%02d", current_hour + 20, current_min);
-		} else {
-		lv_label_set_text_fmt(labelClock, "%02d:%02d", current_hour - 4, current_min);
+	for(;;) {
+		if (xQueueReceive(xQueueRtc, &delayticks, (TickType_t) 0)){
+			rtc_get_time(RTC, &current_hour, &current_min, &current_sec);
+			char *c;
+			c = lv_label_get_text(labelClock);	
+			lv_label_set_text_fmt(labelClock, "%02d:%02d", current_hour, current_min);
+			delay_ms(500);
+			lv_label_set_text_fmt(labelClock, "%02d %02d", current_hour, current_min);
+			delay_ms(500);
+			lv_label_set_text_fmt(labelClock, "%02d:%02d", current_hour, current_min);
+		}
 	}
 }
 
@@ -283,20 +298,11 @@ void lv_termostato(void) {
 	lv_obj_set_style_text_color(labelSetValue, lv_color_white(), LV_STATE_DEFAULT);
 	lv_label_set_text_fmt(labelSetValue, "%02d", 22);
 	
-	uint32_t current_hour, current_min, current_sec;
-	uint32_t current_year, current_month, current_day, current_week;
-	rtc_get_time(RTC, &current_hour, &current_min, &current_sec);
-	rtc_get_date(RTC, &current_year, &current_month, &current_day, &current_week);
-	
 	labelClock = lv_label_create(lv_scr_act());
 	lv_obj_align(labelClock, LV_ALIGN_TOP_RIGHT, -10 , 10);
 	lv_obj_set_style_text_font(labelClock, &dseg30, LV_STATE_DEFAULT);
 	lv_obj_set_style_text_color(labelClock, lv_color_white(), LV_STATE_DEFAULT);
-	if (current_hour < 4) {
-		lv_label_set_text_fmt(labelClock, "%02d:%02d", current_hour + 20, current_min);
-	} else {
-		lv_label_set_text_fmt(labelClock, "%02d:%02d", current_hour - 4, current_min);
-	}
+
 	
 }
 
@@ -406,18 +412,27 @@ int main(void) {
 	configure_lcd();
 	configure_touch();
 	configure_lvgl();
+	
+	xSemaphoreRtc = xSemaphoreCreateBinary();
+	if (xSemaphoreRtc == NULL)
+	printf("Criação do semáforo falhou");
+	
+	xQueueRtc = xQueueCreate(32, sizeof(uint32_t));
+	if (xQueueRtc == NULL)
+	printf("Criação da Queue falhou");
 
 	/* Create task to control oled */
 	if (xTaskCreate(task_lcd, "LCD", TASK_LCD_STACK_SIZE, NULL, TASK_LCD_STACK_PRIORITY, NULL) != pdPASS) {
 		printf("Failed to create lcd task\r\n");
 	}
 	
-	//if (xTaskCreate(task_rtc, "RTC", TASK_RTC_SIZE, NULL, TASK_RTC_PRIORITY, NULL) != pdPASS) {
-	//	printf("Failed to create RTC task\r\n");
-	//}
+	if (xTaskCreate(task_rtc, "RTC", TASK_RTC_SIZE, NULL, TASK_RTC_PRIORITY, NULL) != pdPASS) {
+		printf("Failed to create RTC task\r\n");
+	}
 	
 	/* Start the scheduler. */
 	vTaskStartScheduler();
+
 
 	while(1){}
 		
